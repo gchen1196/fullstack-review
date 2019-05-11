@@ -3,30 +3,47 @@ mongoose.connect('mongodb://localhost/fetcher');
 
 let repoSchema = mongoose.Schema({
   // TODO: your schema here!
-  repo_html: String,
-  repo_description: String,
-  repo_fork: Number
+  username: String,
+  avatar: String,
+  url: String,
+  description: String,
+  forks: Number
   
 });
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = (repo) => {
+let find = (res) => {
+  Repo.find({}, (err, repos) => {
+    res.send(repos);
+  })
+}
+
+let save = (repos, res) => {
   // TODO: Your code here
   // This function should save a repo or repos to
   // the MongoDB
-  var filteredRepo = new Repo;
-  filteredRepo.repo_html = repo.html_url;
-  filteredRepo.repo_description = repo.description;
-  filteredRepo.repo_fork = repo.forks_count;
-  filteredRepo.save((err) => {
-    if(err) {
-      console.log(err);
-    } else {
-      console.log()
-    }
-  })
-
+  for (var i = 0; i < repos.length; i++) {
+    var repo = repos[i];
+    var filteredRepo = new Repo({
+      username: repo.owner.login,
+      avatar: repo.owner.avatar_url,
+      url: repo.html_url,
+      description: repo.description,
+      forks: repo.forks
+    });
+    filteredRepo.save((err) => {
+      if (err) {
+        res.status(500);
+        res.send(err);
+      } else {
+        res.status(201);
+        res.send();
+      }
+    })
+  }
 }
 
+
+module.exports.find = find;
 module.exports.save = save;
