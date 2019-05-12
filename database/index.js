@@ -14,9 +14,7 @@ let repoSchema = mongoose.Schema({
 let Repo = mongoose.model('Repo', repoSchema);
 
 let find = (res) => {
-  Repo.find({}, (err, repos) => {
-    res.send(repos);
-  })
+  Repo.find({}).limit(25).sort({forks: -1}).exec((err, data) => res.send(data));
 }
 
 let save = (repos, res) => {
